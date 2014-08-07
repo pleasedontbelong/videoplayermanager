@@ -37,7 +37,11 @@
 		  player = new VideoTutorial.Tutorial({
         'video_id': '-cHhBcWqso0',
         'element_id': 'ytapiplayer',
-        'ticks': {},
+        'ticks': [
+          {'time': '0:10', 'return': "5 sec something"},
+          {'time': '0:30', 'return': "30 sec something"},
+          {'time': '1:10', 'return': "1 min 10 sec something"},
+        ],
         'onTick': function(){
           console.log(arguments);
         }

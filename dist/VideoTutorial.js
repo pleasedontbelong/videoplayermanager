@@ -70,16 +70,15 @@ module.exports = YoutubeHandler = (function(_super) {
 
   YoutubeHandler.prototype.onYouTubePlayerReady = function() {
     this.player = document.getElementById("myytplayer");
-    this.player.addEventListener("onStateChange", "eventChanged");
-    return setInterval(this.updatePlayerInfo.bind(this), 600);
+    return this.player.addEventListener("onStateChange", "eventChanged");
   };
 
-  YoutubeHandler.prototype.onYouTubePlayerChange = function() {
-    return console.log(arguments);
-  };
+  YoutubeHandler.prototype.onYouTubePlayerChange = function() {};
 
-  YoutubeHandler.prototype.updatePlayerInfo = function() {
-    return console.log(this.player.getCurrentTime());
+  YoutubeHandler.prototype.getCurrentTime = function() {
+    if (this.player) {
+      return Math.round(this.player.getCurrentTime());
+    }
   };
 
   return YoutubeHandler;
@@ -99,11 +98,69 @@ YoutubeHandler = _dereq_("./handlers/youtube_handler.js");
 
 module.exports = VideoTutorial = (function() {
   function VideoTutorial(options) {
-    var handler, _ref;
+    var Handler, _ref;
     this.ticks = options.ticks, this.onTick = options.onTick;
-    handler = (_ref = options.handler) != null ? _ref : YoutubeHandler;
-    this.player = new handler(options);
+    Handler = (_ref = options.handler) != null ? _ref : YoutubeHandler;
+    this.last_tick = false;
+    this.player = new Handler(options);
+    setInterval(this.checkTicks.bind(this), 1000);
   }
+
+  VideoTutorial.prototype.checkTicks = function() {
+    var args, current_time, prev_tick, tick, _ref;
+    current_time = this.player.getCurrentTime();
+    if (!current_time) {
+      return;
+    }
+    prev_tick = this._getPrevTick();
+    console.log("prev_tick", prev_tick);
+    if (prev_tick && this.last_tick !== prev_tick) {
+      this.last_tick = prev_tick;
+      this.onTick(this.ticks[this.last_tick], this.player, true);
+      return;
+    }
+    _ref = this.ticks;
+    for (tick in _ref) {
+      args = _ref[tick];
+      if (this._tickToSeconds(tick) === current_time) {
+        this.last_tick = tick;
+        this.onTick(args, this.player, false);
+        return;
+      }
+    }
+  };
+
+  VideoTutorial.prototype._fireTick = function(tick_id, options, player, is_manual) {
+    this.last_tick = tick_id;
+    this.onTick(this.ticks[this.last_tick], this.player, true);
+  };
+
+  VideoTutorial.prototype._tickToSeconds = function(tick) {
+    var splited;
+    splited = tick.split(':');
+    return (parseInt(splited[0], 10) * 60) + parseInt(splited[1], 10);
+  };
+
+  VideoTutorial.prototype._secondsToTick = function(seconds) {
+    var min, sec;
+    min = Math.floor(seconds / 60);
+    sec = seconds - min * 60;
+    return min + ":" + ("0" + sec).slice(-2);
+  };
+
+  VideoTutorial.prototype._getPrevTick = function(time) {
+    var args, prev_tick, tick, _ref;
+    prev_tick = false;
+    _ref = this.ticks;
+    for (tick in _ref) {
+      args = _ref[tick];
+      if (time < this._tickToSeconds(tick)) {
+        return prev_tick;
+      }
+      prev_tick = tick;
+    }
+    return prev_tick;
+  };
 
   return VideoTutorial;
 
@@ -121,6 +178,16 @@ module.exports = {
       }
     }
     return target;
+  },
+  find: function(items, key, value) {
+    var item, _i, _len;
+    for (_i = 0, _len = items.length; _i < _len; _i++) {
+      item = items[_i];
+      if (item[key] === value) {
+        return item;
+      }
+    }
+    return false;
   }
 };
 

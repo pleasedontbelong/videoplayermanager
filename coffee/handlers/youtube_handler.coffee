@@ -47,10 +47,9 @@ module.exports = class YoutubeHandler extends BaseHandler
         # Add a listener for the changes on the player
         @player.addEventListener("onStateChange","eventChanged")
 
-        setInterval(@updatePlayerInfo.bind(this), 600);
-
     onYouTubePlayerChange: ->
-        console.log arguments
 
-    updatePlayerInfo: ->
-        console.log @player.getCurrentTime()        
+    getCurrentTime: ->
+        if @player
+            Math.round(@player.getCurrentTime())
+
