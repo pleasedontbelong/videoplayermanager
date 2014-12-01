@@ -18,7 +18,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['lib/<%= pkg.name %>.js'],
-        dest: 'dist/<%= pkg.name %>.js'
+        dest: 'dist/<%= pkg.name.toLowerCase() %>.js'
       }
     },
     uglify: {
@@ -95,6 +95,7 @@ module.exports = function(grunt) {
         ext: '.js'
       }
     },
+
     browserify: {
       dist: {
         files: {
@@ -102,9 +103,19 @@ module.exports = function(grunt) {
         },
         options: {
           bundleOptions:{
-            "standalone": "VideoTutorial"
+            "standalone": "VideoPlayerManager"
           }
         }
+      }
+    },
+
+    // Configure a mochaTest task
+    mochaTest: {
+      test: {
+        options: {
+          require: ['./tests/setup.js']
+        },
+        src: ['tests/test_*.js']
       }
     }
 
@@ -118,6 +129,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-debug-task');
+
+   // Default task.
+  grunt.registerTask('build', [
+    'coffee:compile',
+    'browserify'
+  ]);
+
+  grunt.registerTask('test', [
+    'build',
+    'mochaTest'
+  ]);
 
   // Default task.
   grunt.registerTask('default', ['jshint', 'concat', 'uglify']);

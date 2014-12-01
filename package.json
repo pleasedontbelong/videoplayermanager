@@ -1,5 +1,5 @@
 {
-  "name": "VideoTutorial",
+  "name": "VideoPlayerManager",
   "version": "0.0.1",
   "author": {
     "name": "Pablo Leano",
@@ -17,7 +17,12 @@
     "grunt-contrib-uglify": "~0.2.7",
     "grunt-http-server": "0.0.5",
     "grunt-contrib-coffee": "^0.10.1",
+    "grunt-browserify": "^2.0.8",
     "browserify": "^4.0.0",
-    "grunt-browserify": "^2.0.8"
-  }
+    "grunt-mocha-test": "^0.10.2",
+    "mocha": "^1.18.2",
+    "sinon": "^1.10.3",
+    "grunt-debug-task": "^0.1.5",
+    "sinon-chai": "^2.5.0"
+  }  
 }
