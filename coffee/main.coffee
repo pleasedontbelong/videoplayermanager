@@ -1,4 +1,4 @@
 
 module.exports = 
-    Tutorial:	require './tutorial.js'
+    Manager:	require './manager.js'
     
