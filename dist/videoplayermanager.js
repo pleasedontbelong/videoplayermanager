@@ -100,27 +100,40 @@ utils = _dereq_("./utils.js");
 
 module.exports = Manager = (function() {
   function Manager(options) {
-    var Handler, _ref;
+    var Handler, tick, _ref;
     this.ticks = options.ticks, this.onTick = options.onTick;
+    this.prev_fired = false;
+    this.ticks_abs = (function() {
+      var _i, _len, _ref, _results;
+      _ref = this.ticks;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tick = _ref[_i];
+        _results.push(this._tickToSeconds(tick));
+      }
+      return _results;
+    }).call(this);
+    this.ticks_abs.unshift(0);
     Handler = (_ref = options.handler) != null ? _ref : YoutubeHandler;
     this.player = new Handler(options);
     setInterval(this.checkTicks.bind(this), 1000);
   }
 
   Manager.prototype.checkTicks = function() {
-    var current_time, prev_tick, tick, _i, _len, _ref;
+    var current_time, i, tick, _i, _len, _ref;
     current_time = this.player.getCurrentTime();
-    if (!current_time) {
+    if (current_time === false) {
       return;
     }
-    prev_tick = false;
-    _ref = this.ticks;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      tick = _ref[_i];
-      if (this._tickToSeconds(tick.time) === current_time) {
-        this.prev_tick = tick;
-        this.onTick(tick);
-        return;
+    _ref = this.ticks_abs;
+    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
+      tick = _ref[i];
+      if (current_time >= tick && (!this.ticks_abs[i + 1] || current_time < this.ticks_abs[i + 1])) {
+        if (!this.prev_fired || this.prev_fired !== this.ticks_abs[i]) {
+          this.onTick(this.ticks[i - 1] || this.ticks[i], this.ticks);
+          this.prev_fired = this.ticks_abs[i];
+          return;
+        }
       }
     }
   };

@@ -7,6 +7,12 @@ module.exports = class Manager
 
     constructor: (options) ->
         {@ticks, @onTick} = options
+        @prev_fired = false
+
+        # transform ticks to numbers
+        @ticks_abs = (@_tickToSeconds(tick) for tick in @ticks)
+        # append the first element
+        @ticks_abs.unshift(0)
 
         Handler = options.handler ? YoutubeHandler
 
@@ -18,18 +24,17 @@ module.exports = class Manager
     checkTicks: () ->
         current_time = @player.getCurrentTime()
 
-        if not current_time
+        if current_time is false
             return
 
-        # get the tick that was fired before
-        prev_tick = false
-
         # check all ticks
-        for tick in @ticks
-            if @_tickToSeconds(tick.time) == current_time
-                @prev_tick = tick
-                @onTick(tick)
-                return
+        for tick, i in @ticks_abs
+            if current_time >= tick and (not @ticks_abs[i + 1] or current_time < @ticks_abs[i + 1])
+                if not @prev_fired or @prev_fired != @ticks_abs[i]
+                    # fire tick
+                    @onTick(@ticks[i - 1] || @ticks[i], @ticks)
+                    @prev_fired = @ticks_abs[i]
+                    return
 
     ###
      # Converts a tick (time) representation into seconds
