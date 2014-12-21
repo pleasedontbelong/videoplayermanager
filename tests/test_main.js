@@ -1,5 +1,21 @@
 describe('VideoManager', function(){
-    describe('getUrl', function(){
+    describe('toTickIndex', function(){
+        it('should generate an array of indexes', function(){
+            var VideoHandler = require("./mocks/video_handler.js");
+            var callback = sinon.stub();
+
+            var ticks = ['0:01', '0:04', '0:06'];
+
+            var manager = new VideoPlayerManager.Manager({
+                'handler': VideoHandler,
+                'ticks': ticks,
+                'onTick': callback
+            });
+
+            expect(manager.ticks_index).to.deep.equal([0,1,1,1,2,2,3]);
+        });
+    });
+    describe('checkTicks', function(){
         it('should fire the tick', function(){
             var VideoHandler = require("./mocks/video_handler.js");
             VideoHandler.prototype.getCurrentTime = sinon.stub().returns(10);
@@ -21,7 +37,7 @@ describe('VideoManager', function(){
         it('should fire the tick when manually moved', function(){
             var VideoHandler = require("./mocks/video_handler.js");
             var mocked_function = sinon.stub();
-            mocked_function.onFirstCall().returns(30);
+            mocked_function.onFirstCall().returns(35);
             mocked_function.onSecondCall().returns(15); // maybe manually moved by the user
             mocked_function.returns(false);
             VideoHandler.prototype.getCurrentTime = mocked_function;

@@ -9,17 +9,39 @@ module.exports = class Manager
         {@ticks, @onTick} = options
         @prev_fired = false
 
-        # transform ticks to numbers
-        @ticks_abs = (@_tickToSeconds(tick) for tick in @ticks)
-        # append the first element
-        @ticks_abs.unshift(0)
+        # convet string ticks to numeric ticks
+        @ticks_num = @toNumericTicks(@ticks)
+        # generate an idex of ticks
+        @ticks_index = @toTickIndex(@ticks_num)
 
-        Handler = options.handler ? YoutubeHandler
+
+        @Handler = options.handler ? YoutubeHandler
+
+        @prev_tick = false
 
         # start video handler
-        @player = new Handler(options)
+        @player = new @Handler(options)
         # check for ticks each second
         setInterval(@checkTicks.bind(this), 1000);
+
+    toNumericTicks: (string_ticks)->
+        # transform ticks to numbers
+        ticks_abs = (@_tickToSeconds(tick) for tick in string_ticks)
+        # append the first element
+        ticks_abs.unshift(0)
+        ticks_abs.sort()
+        return ticks_abs
+
+    toTickIndex: (numeric_ticks) ->
+        ticks_index = []
+        for tick, i in numeric_ticks
+            if not numeric_ticks[i + 1]
+                range_width = 1
+            else
+                range_width = numeric_ticks[i + 1] - tick
+            ticks_index.push(i) for j in [1..range_width]
+
+        return ticks_index
 
     checkTicks: () ->
         current_time = @player.getCurrentTime()
@@ -27,14 +49,19 @@ module.exports = class Manager
         if current_time is false
             return
 
-        # check all ticks
-        for tick, i in @ticks_abs
-            if current_time >= tick and (not @ticks_abs[i + 1] or current_time < @ticks_abs[i + 1])
-                if not @prev_fired or @prev_fired != @ticks_abs[i]
-                    # fire tick
-                    @onTick(@ticks[i - 1] || @ticks[i], @ticks)
-                    @prev_fired = @ticks_abs[i]
-                    return
+        tick_to_fire = @ticks_index[current_time]
+
+        if @prev_tick is false
+            @prev_tick = 0
+            @fireTick(tick_to_fire)
+
+        if tick_to_fire != @prev_tick
+            @prev_tick = tick_to_fire
+            @fireTick(tick_to_fire)
+
+    fireTick: (tick_num) ->
+        console.log "fire", tick_num, @ticks[tick_num]
+        @onTick(@_secondsToTick(@ticks[tick_num]), @ticks)
 
     ###
      # Converts a tick (time) representation into seconds

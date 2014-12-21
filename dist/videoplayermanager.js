@@ -100,42 +100,70 @@ utils = _dereq_("./utils.js");
 
 module.exports = Manager = (function() {
   function Manager(options) {
-    var Handler, tick, _ref;
+    var _ref;
     this.ticks = options.ticks, this.onTick = options.onTick;
     this.prev_fired = false;
-    this.ticks_abs = (function() {
-      var _i, _len, _ref, _results;
-      _ref = this.ticks;
+    this.ticks_num = this.toNumericTicks(this.ticks);
+    this.ticks_index = this.toTickIndex(this.ticks_num);
+    this.Handler = (_ref = options.handler) != null ? _ref : YoutubeHandler;
+    this.prev_tick = false;
+    this.player = new this.Handler(options);
+    setInterval(this.checkTicks.bind(this), 1000);
+  }
+
+  Manager.prototype.toNumericTicks = function(string_ticks) {
+    var tick, ticks_abs;
+    ticks_abs = (function() {
+      var _i, _len, _results;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tick = _ref[_i];
+      for (_i = 0, _len = string_ticks.length; _i < _len; _i++) {
+        tick = string_ticks[_i];
         _results.push(this._tickToSeconds(tick));
       }
       return _results;
     }).call(this);
-    this.ticks_abs.unshift(0);
-    Handler = (_ref = options.handler) != null ? _ref : YoutubeHandler;
-    this.player = new Handler(options);
-    setInterval(this.checkTicks.bind(this), 1000);
-  }
+    ticks_abs.unshift(0);
+    ticks_abs.sort();
+    return ticks_abs;
+  };
+
+  Manager.prototype.toTickIndex = function(numeric_ticks) {
+    var i, j, range_width, tick, ticks_index, _i, _j, _len;
+    ticks_index = [];
+    for (i = _i = 0, _len = numeric_ticks.length; _i < _len; i = ++_i) {
+      tick = numeric_ticks[i];
+      if (!numeric_ticks[i + 1]) {
+        range_width = 1;
+      } else {
+        range_width = numeric_ticks[i + 1] - tick;
+      }
+      for (j = _j = 1; 1 <= range_width ? _j <= range_width : _j >= range_width; j = 1 <= range_width ? ++_j : --_j) {
+        ticks_index.push(i);
+      }
+    }
+    return ticks_index;
+  };
 
   Manager.prototype.checkTicks = function() {
-    var current_time, i, tick, _i, _len, _ref;
+    var current_time, tick_to_fire;
     current_time = this.player.getCurrentTime();
     if (current_time === false) {
       return;
     }
-    _ref = this.ticks_abs;
-    for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-      tick = _ref[i];
-      if (current_time >= tick && (!this.ticks_abs[i + 1] || current_time < this.ticks_abs[i + 1])) {
-        if (!this.prev_fired || this.prev_fired !== this.ticks_abs[i]) {
-          this.onTick(this.ticks[i - 1] || this.ticks[i], this.ticks);
-          this.prev_fired = this.ticks_abs[i];
-          return;
-        }
-      }
+    tick_to_fire = this.ticks_index[current_time];
+    if (this.prev_tick === false) {
+      this.prev_tick = 0;
+      this.fireTick(tick_to_fire);
     }
+    if (tick_to_fire !== this.prev_tick) {
+      this.prev_tick = tick_to_fire;
+      return this.fireTick(tick_to_fire);
+    }
+  };
+
+  Manager.prototype.fireTick = function(tick_num) {
+    console.log("fire", tick_num, this.ticks[tick_num]);
+    return this.onTick(this._secondsToTick(this.ticks[tick_num]), this.ticks);
   };
 
 

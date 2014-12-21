@@ -30,18 +30,14 @@
     <script src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>    
     
 
-    <script src="../VideoTutorial.js"></script>
+    <script src="../videoplayermanager.js"></script>
 
     <script type="text/javascript">
       $(function() {
-		  player = new VideoTutorial.Tutorial({
+		  player = new VideoPlayerManager.Manager({
         'video_id': '-cHhBcWqso0',
         'element_id': 'ytapiplayer',
-        'ticks': [
-          {'time': '0:10', 'return': "5 sec something"},
-          {'time': '0:30', 'return': "30 sec something"},
-          {'time': '1:10', 'return': "1 min 10 sec something"},
-        ],
+        'ticks': ['0:10', '0:30', '1:10'],
         'onTick': function(){
           console.log(arguments);
         }
