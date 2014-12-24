@@ -60,20 +60,44 @@ module.exports = YoutubeHandler = (function(_super) {
     swfobject.embedSWF("https://www.youtube.com/v/" + this.options.video_id + "?version=3&enablejsapi=1", this.options.element_id, this.options.width, this.options.height, "8", null, null, this.options.swf_params, this.options.swf_atts);
   }
 
-  YoutubeHandler.prototype.start = function() {};
-
-  YoutubeHandler.prototype.stop = function() {};
-
-  YoutubeHandler.prototype.pause = function() {};
-
-  YoutubeHandler.prototype.goto = function(time) {};
-
   YoutubeHandler.prototype.onYouTubePlayerReady = function() {
     this.player = document.getElementById("myytplayer");
     return this.player.addEventListener("onStateChange", "eventChanged");
   };
 
-  YoutubeHandler.prototype.onYouTubePlayerChange = function() {};
+  YoutubeHandler.prototype.onYouTubePlayerChange = function(status) {
+    switch (status) {
+      case -1:
+        if (this.onLoad) {
+          return this.onLoad();
+        }
+        break;
+      case 0:
+        if (this.onEnd) {
+          return this.onEnd();
+        }
+        break;
+      case 1:
+        if (this.onPlay) {
+          return this.onPlay();
+        }
+        break;
+      case 2:
+        if (this.onPause) {
+          return this.onPause();
+        }
+        break;
+      case 3:
+        if (this.onBuffering) {
+          return this.onBuffering();
+        }
+        break;
+      case 5:
+        if (this.onCued) {
+          return this.onCued();
+        }
+    }
+  };
 
   YoutubeHandler.prototype.getCurrentTime = function() {
     if (this.player) {
@@ -103,12 +127,18 @@ module.exports = Manager = (function() {
     var _ref;
     this.ticks = options.ticks, this.onTick = options.onTick;
     this.prev_fired = false;
+    this.ticks.unshift("0:00");
+    this.ticks.sort();
     this.ticks_num = this.toNumericTicks(this.ticks);
     this.ticks_index = this.toTickIndex(this.ticks_num);
     this.Handler = (_ref = options.handler) != null ? _ref : YoutubeHandler;
     this.prev_tick = false;
     this.player = new this.Handler(options);
-    setInterval(this.checkTicks.bind(this), 1000);
+    this.player.onPlay = (function(_this) {
+      return function() {
+        return setInterval(_this.checkTicks.bind(_this), 1000);
+      };
+    })(this);
   }
 
   Manager.prototype.toNumericTicks = function(string_ticks) {
@@ -122,8 +152,6 @@ module.exports = Manager = (function() {
       }
       return _results;
     }).call(this);
-    ticks_abs.unshift(0);
-    ticks_abs.sort();
     return ticks_abs;
   };
 
@@ -150,20 +178,19 @@ module.exports = Manager = (function() {
     if (current_time === false) {
       return;
     }
-    tick_to_fire = this.ticks_index[current_time];
-    if (this.prev_tick === false) {
-      this.prev_tick = 0;
-      this.fireTick(tick_to_fire);
+    if (current_time > this.ticks_index.length) {
+      this.fireTick(this.ticks_index[this.ticks_index.length - 1]);
+      return;
     }
+    tick_to_fire = this.ticks_index[current_time];
     if (tick_to_fire !== this.prev_tick) {
-      this.prev_tick = tick_to_fire;
       return this.fireTick(tick_to_fire);
     }
   };
 
   Manager.prototype.fireTick = function(tick_num) {
-    console.log("fire", tick_num, this.ticks[tick_num]);
-    return this.onTick(this._secondsToTick(this.ticks[tick_num]), this.ticks);
+    this.prev_tick = tick_num;
+    return this.onTick(this.ticks[tick_num], this.ticks);
   };
 
 

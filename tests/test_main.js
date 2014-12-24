@@ -20,7 +20,7 @@ describe('VideoManager', function(){
             var VideoHandler = require("./mocks/video_handler.js");
             VideoHandler.prototype.getCurrentTime = sinon.stub().returns(10);
 
-            var callback = sinon.stub();
+            var callback = sinon.spy();
 
             var ticks = ['0:10', '0:30', '1:10'];
 
@@ -31,7 +31,7 @@ describe('VideoManager', function(){
             });
             manager.checkTicks();
             expect(callback.calledOnce).to.be.true;
-            expect(callback.calledWith('0:10', ticks)).to.be.true;
+            expect(callback.calledWith('0:10', ['0:00', '0:10', '0:30', '1:10'])).to.be.true;
         });
 
         it('should fire the tick when manually moved', function(){
@@ -53,10 +53,10 @@ describe('VideoManager', function(){
             });
             manager.checkTicks();
             expect(callback.calledOnce).to.be.true;
-            expect(callback.calledWith('0:30', ticks)).to.be.true;
+            expect(callback.calledWith('0:30')).to.be.true;
 
             manager.checkTicks();
-            expect(callback.calledWith('0:10', ticks)).to.be.true;
+            expect(callback.calledWith('0:10')).to.be.true;
         });
 
         it('should fire last tick', function(){
@@ -76,7 +76,7 @@ describe('VideoManager', function(){
             });
             manager.checkTicks();
             expect(callback.calledOnce).to.be.true;
-            expect(callback.calledWith('1:10', ticks)).to.be.true;
+            expect(callback.calledWith('1:10')).to.be.true;
         });
 
         it('should fire first tick', function(){
@@ -87,7 +87,7 @@ describe('VideoManager', function(){
 
             var callback = sinon.stub();
 
-            var ticks = ['0:00', '0:10', '0:30', '1:10'];
+            var ticks = ['0:10', '0:30', '1:10'];
 
             var manager = new VideoPlayerManager.Manager({
                 'handler': VideoHandler,
@@ -96,7 +96,7 @@ describe('VideoManager', function(){
             });
             manager.checkTicks();
             expect(callback.calledOnce).to.be.true;
-            expect(callback.calledWith('0:00', ticks)).to.be.true;
+            expect(callback.calledWith('0:00')).to.be.true;
         });
     });
 });

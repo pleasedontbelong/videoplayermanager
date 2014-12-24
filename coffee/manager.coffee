@@ -9,11 +9,14 @@ module.exports = class Manager
         {@ticks, @onTick} = options
         @prev_fired = false
 
+        # append the first element
+        @ticks.unshift("0:00")
+        @ticks.sort()
+
         # convet string ticks to numeric ticks
         @ticks_num = @toNumericTicks(@ticks)
-        # generate an idex of ticks
+        # generate an index of ticks
         @ticks_index = @toTickIndex(@ticks_num)
-
 
         @Handler = options.handler ? YoutubeHandler
 
@@ -21,15 +24,14 @@ module.exports = class Manager
 
         # start video handler
         @player = new @Handler(options)
-        # check for ticks each second
-        setInterval(@checkTicks.bind(this), 1000);
+
+        @player.onPlay = =>
+            # check for ticks each second
+            setInterval(@checkTicks.bind(this), 1000);
 
     toNumericTicks: (string_ticks)->
         # transform ticks to numbers
         ticks_abs = (@_tickToSeconds(tick) for tick in string_ticks)
-        # append the first element
-        ticks_abs.unshift(0)
-        ticks_abs.sort()
         return ticks_abs
 
     toTickIndex: (numeric_ticks) ->
@@ -49,19 +51,18 @@ module.exports = class Manager
         if current_time is false
             return
 
+        if current_time > @ticks_index.length
+            @fireTick(@ticks_index[@ticks_index.length - 1])
+            return
+
         tick_to_fire = @ticks_index[current_time]
 
-        if @prev_tick is false
-            @prev_tick = 0
-            @fireTick(tick_to_fire)
-
         if tick_to_fire != @prev_tick
-            @prev_tick = tick_to_fire
             @fireTick(tick_to_fire)
 
     fireTick: (tick_num) ->
-        console.log "fire", tick_num, @ticks[tick_num]
-        @onTick(@_secondsToTick(@ticks[tick_num]), @ticks)
+        @prev_tick = tick_num
+        @onTick(@ticks[tick_num], @ticks)
 
     ###
      # Converts a tick (time) representation into seconds

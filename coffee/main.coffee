@@ -1,4 +1,4 @@
 
-module.exports = 
+module.exports =
     Manager:	require './manager.js'
-    
+

@@ -5,7 +5,7 @@ BaseHandler = require "./base_handler.js"
 
 module.exports = class YoutubeHandler extends BaseHandler
 
-    defaults: 
+    defaults:
         video_id: "" # the youtube video id (11 chars)
         element_id: "ytapiplayer" # Id of the dom element to replace with the player
         width: "425" # video width
@@ -32,14 +32,6 @@ module.exports = class YoutubeHandler extends BaseHandler
                            @options.swf_params,
                            @options.swf_atts);
 
-    start: ->
-
-    stop: ->
-
-    pause: ->
-
-    goto: (time) ->
-
     onYouTubePlayerReady: ->
         # store the player instance
         @player = document.getElementById("myytplayer")
@@ -47,7 +39,14 @@ module.exports = class YoutubeHandler extends BaseHandler
         # Add a listener for the changes on the player
         @player.addEventListener("onStateChange","eventChanged")
 
-    onYouTubePlayerChange: ->
+    onYouTubePlayerChange: (status)->
+        switch status
+            when -1 then @onLoad() if @onLoad
+            when 0 then @onEnd() if @onEnd
+            when 1 then @onPlay() if @onPlay
+            when 2 then @onPause() if @onPause
+            when 3 then @onBuffering() if @onBuffering
+            when 5 then @onCued() if @onCued
 
     getCurrentTime: ->
         if @player
