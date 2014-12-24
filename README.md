@@ -1,23 +1,30 @@
-# Botify-saas Javascript SDK 
+# Video Player Manager
 
-SDK to help you build and run queries on the Botify-Saas API.
+A "simple" class that helps you manage a few video players (for now only Youtube
+player is supported).
 
-This modules will help you to:
-
-- Login to API and request a token
-- Use the token to make a request to the Botify API
-- Provide classes to help building queries and requesting data from the API
+It allows you to define some ticks (time events) that will be fired when the player
+reaches that lapse of time
 
 ## Example
 
-Add the js to your page like this:
-
 ```js
-<script src="botify-saas-js-sdk.js"></script>
-<script>
-  var myrequest = new Botify.Request();
-  myrequest.get();
-  /* ... have fun ... */
+
+<div id="ytapiplayer">Video Player</div>
+
+<script src="../videoplayermanager.js"></script>
+
+<script type="text/javascript">
+  $(function() {
+  player = new VideoPlayerManager.Manager({
+    'video_id': '<your youtube video id>',
+    'element_id': 'ytapiplayer',
+    'ticks': ['0:10', '0:30', '1:10'],
+    'onTick': function(tick, ticks){
+      console.log("the player is now at " + tick);
+    }
+  });
+});
 </script>
 ```
 
@@ -25,28 +32,6 @@ Add the js to your page like this:
 
 ### Installation
 
-```sh
-git clone git@github.com:sem-io/botify-saas-js-sdk.git botify-js-sdk
-cd botify-js-sdk
-npm install
-
-```
-
 ### Workflow
 
-This project includes a grunt configuration to compile it from the coffeescript files.
-
-There is also a task to run a basic server, to run it launch:
-
-```sh
-grunt http-server:dev
-```
-
-The `watch` task will watch any change on the coffee files and recompile the files
-```sh
-grunt watch
-```
-
-License
-----
-
+### License
