@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>Video Manager Example</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="http://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <link href="./style.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="">
+      <div class="header">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+            <li role="presentation" class="active">
+              <a href="http://www.pabloleanomartinet.com">
+                My site
+              </a>
+            </li>
+            <li><a href="">GitHub</a></li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Basic Example</h3>
+      </div>
+
+      <div class="row">
+        <div class="video col-md-6">
+          <h2>Git Into <small>from codeschool</small></h2>
+          <div class="video-player">
+            <div id="ytapiplayer">You need Flash player 9+ and JavaScript enabled to view this video.</div>
+          </div>
+        </div>
+
+        <div class="ticks col-sm-8 col-sm-offset-2 col-md-offset-0 col-md-6">
+          <div class="row">
+            <a href="" class="col-lg-12 step" data-tick="0:00">
+              <h4>0:00 - Weird Tron Intro</h4>
+              <p>I always wanted to skip this ones</p>
+            </a>
+
+            <a href="" class="col-lg-12 step" data-tick="0:26">
+              <h4>0:26 - Version Control Systems</h4>
+              <p>What they are and why do we need them</p>
+            </a>
+
+            <a href="" class="col-lg-12 step" data-tick="2:34">
+              <h4>2:34 - Origins</h4>
+              <p>A little bit of history, and a photo of Linus</p>
+            </a>
+
+            <a href="" class="col-lg-12 step" data-tick="2:52">
+              <h4>2:52 - Working with Git</h4>
+              <p>Using command line, help and stuff.</p>
+            </a>
+
+            <a href="" class="col-lg-12 step" data-tick="4:14">
+              <h4>4:14 - Git Workflow</h4>
+              <p>The basic commands, when to use them and all of that</p>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>Pablo Leano 2014</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+
+    <script src="../../videoplayermanager.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+
+        video = new VideoPlayerManager.Manager({
+          'video_id': 'ltzQbZrWLds',
+          'element_id': 'ytapiplayer',
+          'ticks': ['0:26', '2:34', '2:52', '4:14'],
+          'onTick': function(tick){
+            $(".step").removeClass("bg-success");
+            var tick_el = $(".step[data-tick='" + tick + "']");
+            if (tick_el){
+              tick_el.addClass("bg-success");
+            }
+          }
+        });
+
+        $(".step").on('click', function(e){
+          e.preventDefault();
+          video.goToTick($(this).data('tick'))
+        });
+    });
+    </script>
+    </body>
+</html>
+
+

@@ -52,8 +52,14 @@ module.exports = function(grunt) {
         src: ['lib/**/*.js', 'test/**/*.js']
       }
     },
-   
+
     watch: {
+      options: {
+        livereload: true,
+      },
+      css:{
+        files: 'dist/**/*.css',
+      },
       gruntfile: {
         files: '<%= jshint.gruntfile.src %>',
         tasks: ['jshint:gruntfile']

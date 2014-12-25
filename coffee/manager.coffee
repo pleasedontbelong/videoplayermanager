@@ -64,6 +64,9 @@ module.exports = class Manager
         @prev_tick = tick_num
         @onTick(@ticks[tick_num], @ticks)
 
+    goToTick: (tick) ->
+        @player.goTo(@_tickToSeconds(tick))
+
     ###
      # Converts a tick (time) representation into seconds
      # @param  {string} tick a time representation

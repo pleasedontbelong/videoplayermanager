@@ -60,9 +60,13 @@ module.exports = YoutubeHandler = (function(_super) {
     swfobject.embedSWF("https://www.youtube.com/v/" + this.options.video_id + "?version=3&enablejsapi=1", this.options.element_id, this.options.width, this.options.height, "8", null, null, this.options.swf_params, this.options.swf_atts);
   }
 
+  YoutubeHandler.prototype.goTo = function(seconds) {
+    return this.ytplayer.seekTo(seconds);
+  };
+
   YoutubeHandler.prototype.onYouTubePlayerReady = function() {
-    this.player = document.getElementById("myytplayer");
-    return this.player.addEventListener("onStateChange", "eventChanged");
+    this.ytplayer = document.getElementById("myytplayer");
+    return this.ytplayer.addEventListener("onStateChange", "eventChanged");
   };
 
   YoutubeHandler.prototype.onYouTubePlayerChange = function(status) {
@@ -100,8 +104,8 @@ module.exports = YoutubeHandler = (function(_super) {
   };
 
   YoutubeHandler.prototype.getCurrentTime = function() {
-    if (this.player) {
-      return Math.round(this.player.getCurrentTime());
+    if (this.ytplayer) {
+      return Math.round(this.ytplayer.getCurrentTime());
     }
   };
 
@@ -191,6 +195,10 @@ module.exports = Manager = (function() {
   Manager.prototype.fireTick = function(tick_num) {
     this.prev_tick = tick_num;
     return this.onTick(this.ticks[tick_num], this.ticks);
+  };
+
+  Manager.prototype.goToTick = function(tick) {
+    return this.player.goTo(this._tickToSeconds(tick));
   };
 
 

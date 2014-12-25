@@ -32,12 +32,15 @@ module.exports = class YoutubeHandler extends BaseHandler
                            @options.swf_params,
                            @options.swf_atts);
 
+    goTo: (seconds) ->
+        @ytplayer.seekTo(seconds)
+
     onYouTubePlayerReady: ->
         # store the player instance
-        @player = document.getElementById("myytplayer")
+        @ytplayer = document.getElementById("myytplayer")
 
         # Add a listener for the changes on the player
-        @player.addEventListener("onStateChange","eventChanged")
+        @ytplayer.addEventListener("onStateChange","eventChanged")
 
     onYouTubePlayerChange: (status)->
         switch status
@@ -49,6 +52,6 @@ module.exports = class YoutubeHandler extends BaseHandler
             when 5 then @onCued() if @onCued
 
     getCurrentTime: ->
-        if @player
-            Math.round(@player.getCurrentTime())
+        if @ytplayer
+            Math.round(@ytplayer.getCurrentTime())
 
